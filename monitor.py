@@ -25,19 +25,23 @@ from playwright.async_api import async_playwright
 
 # ---------------------------------------------------------------------------
 # Links dos gift cards -> valor de face (preço normal, sem desconto)
+#
+# Usamos os links diretos (dp.shopee.com.br), e não os links curtos
+# (br.shp.ee), porque os links curtos tentam abrir o app da Shopee e
+# redirecionam para a Play Store quando não encontram o app instalado.
 # ---------------------------------------------------------------------------
 PRODUTOS = {
-    "https://br.shp.ee/7zrJ1R6i": 5.00,
-    "https://br.shp.ee/9MBTaMKz": 10.00,
-    "https://br.shp.ee/v55cu2zQ": 15.00,
-    "https://br.shp.ee/gCUBbZkw": 20.00,
-    "https://br.shp.ee/P5kmgLRm": 25.00,
-    "https://br.shp.ee/t8j5hZHX": 40.00,
-    "https://br.shp.ee/En5tFa7x": 50.00,
-    "https://br.shp.ee/N3ZrcGdJ": 60.00,
-    "https://br.shp.ee/q1Q1nXsH": 70.00,
-    "https://br.shp.ee/TCUoBu3G": 100.00,
-    "https://br.shp.ee/nEAU92EA": 200.00,
+    "https://dp.shopee.com.br/digital-product/m/rn/evoucher/product/104126": 5.00,
+    "https://dp.shopee.com.br/digital-product/m/rn/evoucher/product/104127": 10.00,
+    "https://dp.shopee.com.br/digital-product/m/rn/evoucher/product/104128": 15.00,
+    "https://dp.shopee.com.br/digital-product/m/rn/evoucher/product/104129": 20.00,
+    "https://dp.shopee.com.br/digital-product/m/rn/evoucher/product/104130": 25.00,
+    "https://dp.shopee.com.br/digital-product/m/rn/evoucher/product/104131": 40.00,
+    "https://dp.shopee.com.br/digital-product/m/rn/evoucher/product/104123": 50.00,
+    "https://dp.shopee.com.br/digital-product/m/rn/evoucher/product/104132": 60.00,
+    "https://dp.shopee.com.br/digital-product/m/rn/evoucher/product/104133": 70.00,
+    "https://dp.shopee.com.br/digital-product/m/rn/evoucher/product/104124": 100.00,
+    "https://dp.shopee.com.br/digital-product/m/rn/evoucher/product/104125": 200.00,
 }
 
 STATE_FILE = Path("state.json")
