@@ -7,6 +7,9 @@ on:
     - cron: "*/20 * * * *"
   workflow_dispatch: {}   # permite rodar manualmente pelo site do GitHub
 
+permissions:
+  contents: write   # necessário para o bot conseguir salvar o state.json
+
 jobs:
   monitor:
     runs-on: ubuntu-latest
@@ -29,6 +32,14 @@ jobs:
           CALLMEBOT_PHONE: ${{ secrets.CALLMEBOT_PHONE }}
           CALLMEBOT_APIKEY: ${{ secrets.CALLMEBOT_APIKEY }}
         run: python monitor.py
+
+      - name: Guardar prints de debug (se houver)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: debug
+          path: debug/
+          if-no-files-found: ignore
 
       - name: Salvar o estado (se algo mudou)
         run: |
