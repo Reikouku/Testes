@@ -68,18 +68,41 @@ def slug(url: str) -> str:
 
 
 async def pegar_preco(page, url: str):
-    await page.goto(url, wait_until="networkidle", timeout=30000)
-    # Dá um tempo extra pro app React terminar de montar o conteúdo
-    await page.wait_for_timeout(5000)
+    capturas = []
+
+    async def ao_receber_resposta(response):
+        try:
+            ct = response.headers.get("content-type", "")
+            if "application/json" not in ct:
+                return
+            corpo = await response.json()
+            capturas.append({"url": response.url, "dados": corpo})
+        except Exception:
+            pass
+
+    page.on("response", ao_receber_resposta)
+    try:
+        await page.goto(url, wait_until="load", timeout=30000)
+    except Exception:
+        pass  # segue mesmo se der timeout/redirecionamento, já capturamos respostas
+    # Dá um tempo pras chamadas de API da página terminarem de responder
+    await page.wait_for_timeout(6000)
+    page.remove_listener("response", ao_receber_resposta)
+
     texto = await page.inner_text("body")
     preco = parse_price(texto)
 
     if preco is None:
-        # Não achou o preço: salva um print + o texto da página pra debug.
+        # Não achou o preço na tela: salva tudo que capturamos pra debug
+        # (print da tela, texto visível e as respostas de API em JSON).
         DEBUG_DIR.mkdir(exist_ok=True)
         nome = slug(url)
         await page.screenshot(path=str(DEBUG_DIR / f"{nome}.png"), full_page=True)
         (DEBUG_DIR / f"{nome}.txt").write_text(texto, encoding="utf-8")
+        conteudo_json = json.dumps(capturas, ensure_ascii=False, indent=2)
+        (DEBUG_DIR / f"{nome}_api.json").write_text(
+            conteudo_json[:200_000], encoding="utf-8"
+        )
 
     return preco
 
