@@ -46,11 +46,6 @@ DEBUG_DIR = Path("debug")
 CALLMEBOT_PHONE = os.environ.get("CALLMEBOT_PHONE")
 CALLMEBOT_APIKEY = os.environ.get("CALLMEBOT_APIKEY")
 
-USER_AGENT = (
-    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
-    "(KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36"
-)
-
 # Ex: "R$ 200,00" ou "R$200,00" -> captura "200,00"
 PRICE_REGEX = re.compile(r"R\$\s?(\d{1,3}(?:\.\d{3})*,\d{2})")
 
@@ -119,12 +114,16 @@ async def main():
 
     async with async_playwright() as p:
         browser = await p.chromium.launch()
-        page = await browser.new_page(
-            user_agent=USER_AGENT,
+        # A Shopee só mostra a página real do produto para celulares —
+        # no navegador "de PC" ela redireciona para "baixe o app". Por
+        # isso, fazemos o navegador se passar por um Android.
+        celular = p.devices["Pixel 7"]
+        context = await browser.new_context(
+            **celular,
             locale="pt-BR",
             timezone_id="America/Sao_Paulo",
-            viewport={"width": 1280, "height": 900},
         )
+        page = await context.new_page()
 
         for url, valor_face in PRODUTOS.items():
             try:
@@ -156,6 +155,7 @@ async def main():
                 # notificar de novo na próxima vez que cair.
                 del estado[url]
 
+        await context.close()
         await browser.close()
 
     # Sempre salva, mesmo sem mudanças, pra garantir que o arquivo
